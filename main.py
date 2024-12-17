@@ -41,8 +41,8 @@ def chat():
             if not isinstance(response, str):
                 return jsonify({"error": "Invalid response format from agent"}), 500
             
-            # Clean up response if needed    
-            response = response.strip()
+            # Remove any memory content that might be included in response
+            response = response.split("\n")[-1].strip()
             if not response:
                 return jsonify({"error": "Empty response from agent"}), 500
                 
