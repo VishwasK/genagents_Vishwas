@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify
 import uuid
 from genagents.genagents import GenerativeAgent
@@ -125,18 +124,12 @@ def reflect():
 
         # Initialize agent first
         try:
-            agent = GenerativeAgent()
-            with open(f"{agent_path}/scratch.json") as json_file:
-                scratch = json.load(json_file)
-            agent.update_scratch(scratch)
+            # Initialize with path directly
+            agent = GenerativeAgent(agent_path)
             
-            # Load existing memory stream if it exists
-            if os.path.exists(f"{agent_path}/memory_stream/nodes.json"):
-                with open(f"{agent_path}/memory_stream/nodes.json") as json_file:
-                    nodes = json.load(json_file)
-                with open(f"{agent_path}/memory_stream/embeddings.json") as json_file:
-                    embeddings = json.load(json_file)
-                agent.memory_stream = MemoryStream(nodes, embeddings)
+            # Validate anchor text
+            if not anchor or not isinstance(anchor, str):
+                return jsonify({"error": "Invalid anchor text"}), 400
             
             # Generate reflection with proper error handling
             try:
