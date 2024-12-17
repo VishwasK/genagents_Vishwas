@@ -78,10 +78,10 @@ def create_agent():
         agent_path = f"agent_bank/populations/single_agent/{agent_id}"
         os.makedirs(os.path.join(agent_path, "memory_stream"), exist_ok=True)
         
-        # Create new agent
-        agent = GenerativeAgent(agent_path)
+        # Create new agent without a folder first
+        agent = GenerativeAgent()  # Initialize empty agent
         agent.update_scratch(agent_info)
-        agent.save(agent_path)
+        agent.save(agent_path)  # Save to create initial files
         
         return jsonify({"success": True, "agent_id": agent_id}), 200
     except Exception as e:
