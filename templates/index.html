@@ -5,7 +5,7 @@
     <title>GenAgents Chat</title>
     <style>
         #chat-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             padding: 20px;
             border: 1px solid #ccc;
@@ -24,38 +24,98 @@
         button {
             padding: 8px 15px;
         }
-        #agent-selector {
-            margin-bottom: 15px;
-            padding: 8px;
-            width: 100%;
-        }
         .agent-header {
             text-align: center;
             margin-bottom: 15px;
             font-weight: bold;
         }
+        #agent-selector-container {
+            margin-bottom: 20px;
+        }
+        #agent-search {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        #agent-selector {
+            width: 100%;
+            padding: 8px;
+        }
+        #agent-info {
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div id="chat-container">
-        <div class="agent-header">Current Agent: <span id="current-agent">Joon</span></div>
-        <select id="agent-selector" onchange="changeAgent()">
-            <option value="01fd7d2a-0357-4c1b-9f3e-8eade2d537ae">Joon</option>
-            <option value="software_engineer">Software Engineer</option>
-        </select>
+        <div id="agent-selector-container">
+            <input type="text" id="agent-search" placeholder="Search agents...">
+            <select id="agent-selector" onchange="changeAgent()">
+                <option value="">Select an agent...</option>
+                <option value="01fd7d2a-0357-4c1b-9f3e-8eade2d537ae">Joon - PhD Student at Stanford</option>
+                <option value="software_engineer">Software Engineer</option>
+            </select>
+        </div>
+        
+        <div id="agent-info"></div>
         <div id="chat-history"></div>
-        <input type="text" id="message-input" placeholder="Type your message...">
-        <button onclick="sendMessage()">Send</button>
+        <input type="text" id="message-input" placeholder="Type your message..." disabled>
+        <button onclick="sendMessage()" id="send-button" disabled>Send</button>
     </div>
     
     <script>
         let chatHistory = [];
-        let currentAgent = '01fd7d2a-0357-4c1b-9f3e-8eade2d537ae';
+        let currentAgent = '';
+        
+        const agentDetails = {
+            '01fd7d2a-0357-4c1b-9f3e-8eade2d537ae': {
+                name: 'Joon',
+                role: 'PhD Student at Stanford',
+                description: 'A PhD student in Computer Science focusing on AI and human-computer interaction. Originally from Korea, now studying at Stanford University.'
+            },
+            'software_engineer': {
+                name: 'Software Engineer',
+                role: 'Professional Developer',
+                description: 'An experienced software engineer working in tech industry.'
+            }
+        };
+        
+        function filterAgents() {
+            const searchText = document.getElementById('agent-search').value.toLowerCase();
+            const selector = document.getElementById('agent-selector');
+            Array.from(selector.options).forEach(option => {
+                const text = option.text.toLowerCase();
+                option.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        }
+        
+        document.getElementById('agent-search').addEventListener('input', filterAgents);
         
         function changeAgent() {
             currentAgent = document.getElementById('agent-selector').value;
-            document.getElementById('current-agent').textContent = 
-                document.getElementById('agent-selector').options[document.getElementById('agent-selector').selectedIndex].text;
+            const agentInfo = document.getElementById('agent-info');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            
+            if (currentAgent && agentDetails[currentAgent]) {
+                const agent = agentDetails[currentAgent];
+                agentInfo.innerHTML = `
+                    <h3>${agent.name} - ${agent.role}</h3>
+                    <p>${agent.description}</p>
+                `;
+                agentInfo.style.display = 'block';
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+            } else {
+                agentInfo.style.display = 'none';
+                messageInput.disabled = true;
+                sendButton.disabled = true;
+            }
+            
             chatHistory = [];
             document.getElementById('chat-history').innerHTML = '';
         }
@@ -106,7 +166,6 @@
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
         
-        // Allow Enter key to send message
         document.getElementById('message-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
