@@ -1,6 +1,7 @@
+
 from flask import Flask, render_template, request, jsonify
 from genagents.genagents import GenerativeAgent
-import os
+import os, json
 import traceback
 
 app = Flask(__name__)
@@ -17,55 +18,54 @@ def search_agents():
     sex = data.get('sex')
     race = data.get('race')
     
-    # Search in GSS agents directory first
-    gss_agents = []
+    results = []
+    
+    # Search in GSS agents directory
     gss_agents_dir = "agent_bank/populations/gss_agents"
     for agent_dir in os.listdir(gss_agents_dir):
-        path = os.path.join(gss_agents_dir, agent_dir, "scratch.json")
-        if os.path.exists(path):
-            with open(path) as f:
-                data = json.load(f)
+        scratch_path = os.path.join(gss_agents_dir, agent_dir, "scratch.json")
+        if os.path.exists(scratch_path):
+            with open(scratch_path) as f:
+                agent_data = json.load(f)
                 if all([
-                    not age or str(data.get('age')) == str(age),
-                    not sex or data.get('sex', '').lower() == sex.lower(),
-                    not race or data.get('race', '').lower() == race.lower()
+                    not age or str(agent_data.get('age')) == str(age),
+                    not sex or agent_data.get('sex', '').lower() == sex.lower(),
+                    not race or agent_data.get('race', '').lower() == race.lower()
                 ]):
                     meta_path = os.path.join(gss_agents_dir, agent_dir, "meta.json")
                     with open(meta_path) as mf:
                         meta = json.load(mf)
-                        gss_agents.append({
+                        results.append({
                             'id': meta.get('id'),
-                            'first_name': data.get('first_name'),
-                            'last_name': data.get('last_name'),
-                            'age': data.get('age'),
-                            'sex': data.get('sex'),
-                            'race': data.get('race')
+                            'first_name': agent_data.get('first_name'),
+                            'last_name': agent_data.get('last_name'),
+                            'age': agent_data.get('age'),
+                            'sex': agent_data.get('sex'),
+                            'race': agent_data.get('race')
                         })
-    results = gss_agents
     
-    # Also search in single_agent directory
-    single_agents = []
+    # Search in single_agent directory
     single_agent_dir = "agent_bank/populations/single_agent"
     for agent_dir in os.listdir(single_agent_dir):
-        path = os.path.join(single_agent_dir, agent_dir, "scratch.json")
-        if os.path.exists(path):
-            with open(path) as f:
-                data = json.load(f)
+        scratch_path = os.path.join(single_agent_dir, agent_dir, "scratch.json")
+        if os.path.exists(scratch_path):
+            with open(scratch_path) as f:
+                agent_data = json.load(f)
                 if all([
-                    not age or str(data.get('age')) == str(age),
-                    not sex or data.get('sex', '').lower() == sex.lower(),
-                    not race or data.get('race', '').lower() == race.lower()
+                    not age or str(agent_data.get('age')) == str(age),
+                    not sex or agent_data.get('sex', '').lower() == sex.lower(),
+                    not race or agent_data.get('race', '').lower() == race.lower()
                 ]):
-                    single_agents.append({
+                    results.append({
                         'id': agent_dir,
-                        'first_name': data.get('first_name'),
-                        'last_name': data.get('last_name'),
-                        'age': data.get('age'),
-                        'sex': data.get('sex'),
-                        'race': data.get('race')
+                        'first_name': agent_data.get('first_name'),
+                        'last_name': agent_data.get('last_name'),
+                        'age': agent_data.get('age'),
+                        'sex': agent_data.get('sex'),
+                        'race': agent_data.get('race')
                     })
     
-    return jsonify(results + single_agents)
+    return jsonify(results)
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -89,7 +89,7 @@ def chat():
 
         try:
             dialogue = [["User", message]]
-            response = agent.utterance(dialogue, {})  # Add empty context dict
+            response = agent.utterance(dialogue, {})
             
             if isinstance(response, str):
                 return jsonify({"response": response}), 200
