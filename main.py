@@ -122,15 +122,29 @@ def reflect():
             if not os.path.exists(agent_path):
                 return jsonify({"error": "Agent not found"}), 404
 
-        # Create required directories
-        os.makedirs(os.path.join(agent_path, "memory_stream"), exist_ok=True)
-        
-        # Initialize agent
+        # Initialize agent first
         try:
-            agent = GenerativeAgent(agent_path)
+            agent = GenerativeAgent()
+            with open(f"{agent_path}/scratch.json") as json_file:
+                scratch = json.load(json_file)
+            agent.update_scratch(scratch)
+            
+            # Load existing memory stream if it exists
+            if os.path.exists(f"{agent_path}/memory_stream/nodes.json"):
+                with open(f"{agent_path}/memory_stream/nodes.json") as json_file:
+                    nodes = json.load(json_file)
+                with open(f"{agent_path}/memory_stream/embeddings.json") as json_file:
+                    embeddings = json.load(json_file)
+                agent.memory_stream = MemoryStream(nodes, embeddings)
+            
+            # Generate reflection
             reflection = agent.reflect(anchor=anchor, time_step=time_step)
-            return jsonify({"reflection": reflection}), 200
+            agent.save(agent_path)
+            
+            return jsonify({"reflection": reflection if reflection else "No reflection generated"}), 200
+            
         except Exception as init_error:
+            print(f"Agent initialization error: {str(init_error)}")
             return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
             
     except Exception as e:
