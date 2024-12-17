@@ -461,16 +461,34 @@ class MemoryStream:
     self._add_node(time_step, "observation", content, score, None)
 
 
-  def reflect(self, anchor, reflection_count=5, 
+  def reflect(self, anchor, reflection_count=1, 
               retrieval_count=120, time_step=0): 
-    records = self.retrieve([anchor], time_step, retrieval_count)[anchor]
+    # Handle empty memory stream
+    if not self.seq_nodes:
+        self._add_node(time_step, "reflection", f"Initial reflection about {anchor}", 0.5, None)
+        return
+
+    retrieved = self.retrieve([anchor], time_step, retrieval_count)
+    if not retrieved or anchor not in retrieved:
+        self._add_node(time_step, "reflection", f"Reflection about {anchor} with limited context", 0.5, None)
+        return
+
+    records = retrieved[anchor]
+    if not records:
+        self._add_node(time_step, "reflection", f"New reflection about {anchor}", 0.5, None)
+        return
+
     record_ids = [i.node_id for i in records]
     reflections = generate_reflection(records, anchor, reflection_count)
+    
+    if isinstance(reflections, str):
+        reflections = [reflections]
+    
     scores = generate_importance_score(reflections)
 
     for count, reflection in enumerate(reflections): 
-      self._add_node(time_step, "reflection", reflections[count], 
-                     scores[count], record_ids)
+        self._add_node(time_step, "reflection", reflection, 
+                      scores[count], record_ids)
 
 
 
