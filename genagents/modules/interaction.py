@@ -157,13 +157,15 @@ def run_gpt_generate_utterance(
 
   def _func_clean_up(gpt_response, prompt=""): 
     try:
+        if isinstance(gpt_response, str):
+            return gpt_response.strip()
         response_dict = extract_first_json_dict(gpt_response)
-        if not response_dict or "utterance" not in response_dict:
-            return "I apologize, but I'm having trouble processing that request."
-        return response_dict["utterance"]
+        if response_dict and "utterance" in response_dict:
+            return response_dict["utterance"]
+        return "Hello! How can I assist you today?"
     except Exception as e:
         print(f"Error cleaning up response: {str(e)}")
-        return "I apologize, but I'm having trouble generating a response."
+        return "Hello! How can I assist you today?"
 
   def _get_fail_safe():
     return None
