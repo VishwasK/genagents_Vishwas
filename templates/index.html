@@ -100,21 +100,46 @@
             <h3>Create New Agent</h3>
             <div class="form-group">
                 <label>First Name:</label>
-                <input type="text" id="create-firstname">
+                <input type="text" id="create-firstname" required>
             </div>
             <div class="form-group">
                 <label>Last Name:</label>
-                <input type="text" id="create-lastname">
+                <input type="text" id="create-lastname" required>
             </div>
             <div class="form-group">
                 <label>Age:</label>
-                <input type="number" id="create-age">
+                <input type="number" id="create-age" required>
+            </div>
+            <div class="form-group">
+                <label>Sex:</label>
+                <select id="create-sex" required>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Race:</label>
+                <select id="create-race" required>
+                    <option value="White">White</option>
+                    <option value="Black">Black</option>
+                    <option value="Asian">Asian</option>
+                    <option value="Hispanic">Hispanic</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Occupation:</label>
-                <input type="text" id="create-occupation">
+                <input type="text" id="create-occupation" required>
+            </div>
+            <div class="form-group">
+                <label>Political Views:</label>
+                <select id="create-political" required>
+                    <option value="Liberal">Liberal</option>
+                    <option value="Conservative">Conservative</option>
+                    <option value="Moderate">Moderate</option>
+                </select>
             </div>
             <button onclick="createAgent()">Create Agent</button>
+            <div id="create-result"></div>
         </div>
         
         <div id="manage-section" class="management-section" style="display: none;">
@@ -300,7 +325,10 @@
                 first_name: document.getElementById('create-firstname').value,
                 last_name: document.getElementById('create-lastname').value,
                 age: parseInt(document.getElementById('create-age').value),
-                occupation: document.getElementById('create-occupation').value
+                sex: document.getElementById('create-sex').value,
+                race: document.getElementById('create-race').value,
+                occupation: document.getElementById('create-occupation').value,
+                political_views: document.getElementById('create-political').value
             };
             
             try {
@@ -390,6 +418,11 @@
             document.getElementById('send-button').style.display = 'none';
             document.getElementById('create-section').style.display = 'none';
             document.getElementById('manage-section').style.display = 'none';
+
+            if (tab === 'manage') {
+                document.getElementById('agent-selector-container').style.display = 'block';
+                document.getElementById('manage-section').style.display = 'block';
+            }
             
             // Show selected section
             if (tab === 'chat') {
