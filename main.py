@@ -96,7 +96,14 @@ def chat():
             response = agent.utterance(dialogue, {})
             
             if isinstance(response, str):
-                return jsonify({"response": response}), 200
+                # Clean up JSON response if present
+                if response.startswith('{"utterance":'):
+                    try:
+                        import json
+                        response = json.loads(response)['utterance']
+                    except:
+                        pass
+                return jsonify({"response": response.strip()}), 200
             else:
                 return jsonify({"response": "I apologize, but I'm having trouble understanding. Could you please rephrase?"}), 200
             
