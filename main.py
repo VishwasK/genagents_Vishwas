@@ -17,8 +17,31 @@ def search_agents():
     sex = data.get('sex')
     race = data.get('race')
     
-    from db.db import search_agents_dialogue
-    results = search_agents_dialogue(age=age, sex=sex, race=race)
+    # Search in GSS agents directory first
+    gss_agents = []
+    gss_agents_dir = "agent_bank/populations/gss_agents"
+    for agent_dir in os.listdir(gss_agents_dir):
+        path = os.path.join(gss_agents_dir, agent_dir, "scratch.json")
+        if os.path.exists(path):
+            with open(path) as f:
+                data = json.load(f)
+                if all([
+                    not age or str(data.get('age')) == str(age),
+                    not sex or data.get('sex', '').lower() == sex.lower(),
+                    not race or data.get('race', '').lower() == race.lower()
+                ]):
+                    meta_path = os.path.join(gss_agents_dir, agent_dir, "meta.json")
+                    with open(meta_path) as mf:
+                        meta = json.load(mf)
+                        gss_agents.append({
+                            'id': meta.get('id'),
+                            'first_name': data.get('first_name'),
+                            'last_name': data.get('last_name'),
+                            'age': data.get('age'),
+                            'sex': data.get('sex'),
+                            'race': data.get('race')
+                        })
+    results = gss_agents
     
     # Also search in single_agent directory
     single_agents = []
