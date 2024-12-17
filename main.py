@@ -10,6 +10,40 @@ agent = None
 def home():
     return render_template('index.html')
 
+@app.route('/search', methods=['POST'])
+def search_agents():
+    data = request.get_json()
+    age = data.get('age')
+    sex = data.get('sex')
+    race = data.get('race')
+    
+    from db.db import search_agents_dialogue
+    results = search_agents_dialogue(age=age, sex=sex, race=race)
+    
+    # Also search in single_agent directory
+    single_agents = []
+    single_agent_dir = "agent_bank/populations/single_agent"
+    for agent_dir in os.listdir(single_agent_dir):
+        path = os.path.join(single_agent_dir, agent_dir, "scratch.json")
+        if os.path.exists(path):
+            with open(path) as f:
+                data = json.load(f)
+                if all([
+                    not age or str(data.get('age')) == str(age),
+                    not sex or data.get('sex', '').lower() == sex.lower(),
+                    not race or data.get('race', '').lower() == race.lower()
+                ]):
+                    single_agents.append({
+                        'id': agent_dir,
+                        'first_name': data.get('first_name'),
+                        'last_name': data.get('last_name'),
+                        'age': data.get('age'),
+                        'sex': data.get('sex'),
+                        'race': data.get('race')
+                    })
+    
+    return jsonify(results + single_agents)
+
 @app.route('/chat', methods=['POST'])
 def chat():
     try:

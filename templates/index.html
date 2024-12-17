@@ -129,10 +129,19 @@
         function updateAgentSelector(agents) {
             const selector = document.getElementById('agent-selector');
             selector.innerHTML = '<option value="">Select an agent...</option>';
+            
+            if (agents.length === 0) {
+                const option = document.createElement('option');
+                option.text = 'No agents found matching criteria';
+                option.disabled = true;
+                selector.appendChild(option);
+                return;
+            }
+            
             agents.forEach(agent => {
                 const option = document.createElement('option');
                 option.value = agent.id;
-                option.text = `${agent.first_name} ${agent.last_name} (${agent.age}, ${agent.sex})`;
+                option.text = `${agent.first_name || ''} ${agent.last_name || ''} (${agent.age || 'N/A'}, ${agent.sex || 'N/A'})`;
                 selector.appendChild(option);
             });
         }
