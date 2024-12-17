@@ -138,11 +138,17 @@ def reflect():
                     embeddings = json.load(json_file)
                 agent.memory_stream = MemoryStream(nodes, embeddings)
             
-            # Generate reflection
-            reflection = agent.reflect(anchor=anchor, time_step=time_step)
-            agent.save(agent_path)
-            
-            return jsonify({"reflection": reflection if reflection else "No reflection generated"}), 200
+            # Generate reflection with proper error handling
+            try:
+                agent.reflect(anchor=anchor, time_step=time_step)
+                # Get the most recent reflection from memory stream
+                reflections = [node for node in agent.memory_stream.seq_nodes if node.node_type == "reflection"]
+                reflection_text = reflections[-1].content if reflections else "No reflection generated"
+                agent.save(agent_path)
+                return jsonify({"reflection": reflection_text}), 200
+            except Exception as reflect_error:
+                print(f"Reflection generation error: {str(reflect_error)}")
+                return jsonify({"error": "Unable to generate reflection"}), 500
             
         except Exception as init_error:
             print(f"Agent initialization error: {str(init_error)}")
