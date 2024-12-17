@@ -37,16 +37,11 @@ def chat():
         try:
             dialogue = [["User", message]]
             response = agent.utterance(dialogue)
-            print(f"Raw response from agent: {response}")
             
-            if response is None:
-                return jsonify({"error": "Agent returned None response"}), 500
+            if not isinstance(response, str):
+                return jsonify({"error": "Invalid response format from agent"}), 500
                 
-            return jsonify({
-                "response": response,
-                "raw_response": str(response),
-                "type": str(type(response))
-            })
+            return jsonify({"response": response})
             
         except Exception as dialogue_error:
             return jsonify({"error": f"Failed to process dialogue: {str(dialogue_error)}"}), 500
