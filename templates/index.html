@@ -154,13 +154,8 @@
             const messageInput = document.getElementById('message-input');
             const sendButton = document.getElementById('send-button');
             
-            if (currentAgent && agentDetails[currentAgent]) {
-                const agent = agentDetails[currentAgent];
-                agentInfo.innerHTML = `
-                    <h3>${agent.name} - ${agent.role}</h3>
-                    <p>${agent.description}</p>
-                `;
-                agentInfo.style.display = 'block';
+            if (currentAgent) {
+                agentInfo.style.display = 'none';
                 messageInput.disabled = false;
                 sendButton.disabled = false;
             } else {
