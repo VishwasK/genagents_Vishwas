@@ -40,6 +40,11 @@ def chat():
             
             if not isinstance(response, str):
                 return jsonify({"error": "Invalid response format from agent"}), 500
+            
+            # Clean up response if needed    
+            response = response.strip()
+            if not response:
+                return jsonify({"error": "Empty response from agent"}), 500
                 
             return jsonify({"response": response})
             
