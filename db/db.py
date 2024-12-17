@@ -57,24 +57,42 @@ def search_agents(**criteria):
     conn = get_db_connection()
     cur = conn.cursor()
     
-    query = "SELECT * FROM agents WHERE 1=1"
+    query = "SELECT id, first_name, last_name, age, sex, race, occupation, religion, data FROM agents WHERE 1=1"
     params = []
     
     if 'age' in criteria:
         query += " AND age = %s"
-        params.append(criteria['age'])
+        params.append(int(criteria['age']))
     if 'sex' in criteria:
-        query += " AND sex = %s"
-        params.append(criteria['sex'])
+        query += " AND LOWER(sex) = LOWER(%s)"
+        params.append(str(criteria['sex']))
     if 'race' in criteria:
-        query += " AND race = %s"
-        params.append(criteria['race'])
+        query += " AND LOWER(race) = LOWER(%s)"
+        params.append(str(criteria['race']))
     if 'religion' in criteria:
-        query += " AND religion = %s"
-        params.append(criteria['religion'])
-    
+        query += " AND LOWER(religion) = LOWER(%s)"
+        params.append(str(criteria['religion']))
+    if 'occupation' in criteria:
+        query += " AND LOWER(occupation) = LOWER(%s)"
+        params.append(str(criteria['occupation']))
+        
     cur.execute(query, params)
-    results = cur.fetchall()
+    columns = [desc[0] for desc in cur.description]
+    results = [dict(zip(columns, row)) for row in cur.fetchall()]
     cur.close()
     conn.close()
     return results
+
+def search_agents_dialogue(age=None, sex=None, race=None, religion=None, occupation=None):
+    criteria = {}
+    if age:
+        criteria['age'] = age
+    if sex:
+        criteria['sex'] = sex
+    if race:
+        criteria['race'] = race  
+    if religion:
+        criteria['religion'] = religion
+    if occupation:
+        criteria['occupation'] = occupation
+    return search_agents(**criteria)
