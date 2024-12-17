@@ -1,0 +1,36 @@
+Press CTRL+C to quit
+172.31.196.3 - - [17/Dec/2024 14:39:55] "GET / HTTP/1.1" 200 -
+[2024-12-17 14:40:09,391] ERROR in app: Exception on /chat [POST]
+Traceback (most recent call last):
+  File "/home/runner/genagentsVishwas/.pythonlibs/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/.pythonlibs/lib/python3.12/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/.pythonlibs/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/.pythonlibs/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/main.py", line 22, in chat
+    response = agent.utterance(history + [["User", message]])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/genagents/genagents.py", line 135, in utterance
+    ret = utterance(self, curr_dialogue, context)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/genagents/modules/interaction.py", line 185, in utterance
+    return run_gpt_generate_utterance(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/genagents/modules/interaction.py", line 170, in run_gpt_generate_utterance
+    output, prompt, prompt_input, fail_safe = chat_safe_generate(
+                                              ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/simulation_engine/gpt_structure.py", line 143, in chat_safe_generate
+    response = func_clean_up(response, prompt=prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/genagentsVishwas/genagents/modules/interaction.py", line 159, in _func_clean_up
+    utterance = extract_first_json_dict(gpt_response)["utterance"]
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+172.31.196.3 - - [17/Dec/2024 14:40:09] "POST /chat HTTP/1.1" 500 -
