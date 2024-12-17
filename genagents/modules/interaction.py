@@ -156,8 +156,14 @@ def run_gpt_generate_utterance(
     return [agent_desc, context, str_dialogue]
 
   def _func_clean_up(gpt_response, prompt=""): 
-    utterance = extract_first_json_dict(gpt_response)["utterance"]
-    return utterance
+    try:
+        response_dict = extract_first_json_dict(gpt_response)
+        if not response_dict or "utterance" not in response_dict:
+            return "I apologize, but I'm having trouble processing that request."
+        return response_dict["utterance"]
+    except Exception as e:
+        print(f"Error cleaning up response: {str(e)}")
+        return "I apologize, but I'm having trouble generating a response."
 
   def _get_fail_safe():
     return None
@@ -227,29 +233,3 @@ def run_gpt_generate_ask(
         _func_clean_up, verbose)
 
     return output, [output, prompt, prompt_input, fail_safe]
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-
