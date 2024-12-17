@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,10 +24,25 @@
         button {
             padding: 8px 15px;
         }
+        #agent-selector {
+            margin-bottom: 15px;
+            padding: 8px;
+            width: 100%;
+        }
+        .agent-header {
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div id="chat-container">
+        <div class="agent-header">Current Agent: <span id="current-agent">Joon</span></div>
+        <select id="agent-selector" onchange="changeAgent()">
+            <option value="01fd7d2a-0357-4c1b-9f3e-8eade2d537ae">Joon</option>
+            <option value="software_engineer">Software Engineer</option>
+        </select>
         <div id="chat-history"></div>
         <input type="text" id="message-input" placeholder="Type your message...">
         <button onclick="sendMessage()">Send</button>
@@ -34,6 +50,15 @@
     
     <script>
         let chatHistory = [];
+        let currentAgent = '01fd7d2a-0357-4c1b-9f3e-8eade2d537ae';
+        
+        function changeAgent() {
+            currentAgent = document.getElementById('agent-selector').value;
+            document.getElementById('current-agent').textContent = 
+                document.getElementById('agent-selector').options[document.getElementById('agent-selector').selectedIndex].text;
+            chatHistory = [];
+            document.getElementById('chat-history').innerHTML = '';
+        }
         
         async function sendMessage() {
             const input = document.getElementById('message-input');
@@ -47,32 +72,45 @@
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message, history: chatHistory})
+                    body: JSON.stringify({
+                        message, 
+                        history: chatHistory,
+                        agent_id: currentAgent
+                    })
                 });
                 const data = await response.json();
                 displayMessage('Agent', data);
                 chatHistory.push(['User', message], ['Agent', data]);
             } catch (error) {
                 console.error('Error:', error);
-                displayMessage('Agent', {error: error.message}); // Display error message
+                displayMessage('Agent', {error: error.message});
             }
         }
         
         function displayMessage(sender, message) {
             const chatHistory = document.getElementById('chat-history');
+            let messageHtml = `<p><strong>${sender}:</strong> `;
             
-            if (typeof message === 'object' && message.error) {
-                chatHistory.innerHTML += `<p><strong>${sender}:</strong> <span style="color:red;">Error: ${message.error}</span></p>`;
-            } else if (typeof message === 'object') {
-                chatHistory.innerHTML += `<p><strong>${sender}:</strong> Response: ${message.response}<br>Raw: ${message.raw_response}<br>Type: ${message.type}</p>`;
+            if (typeof message === 'object') {
+                if (message.error) {
+                    messageHtml += `<span style="color: red;">${message.error}</span>`;
+                } else if (message.response) {
+                    messageHtml += message.response;
+                }
             } else {
-                chatHistory.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
+                messageHtml += message;
             }
+            
+            messageHtml += '</p>';
+            chatHistory.innerHTML += messageHtml;
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
         
-        document.getElementById('message-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
+        // Allow Enter key to send message
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
         });
     </script>
 </body>

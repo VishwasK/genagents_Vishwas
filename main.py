@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify
 from genagents.genagents import GenerativeAgent
 import os
@@ -14,23 +13,22 @@ def home():
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
+        data = request.get_json()
+        message = data.get('message', '')
+        agent_id = data.get('agent_id', '01fd7d2a-0357-4c1b-9f3e-8eade2d537ae')
+        
         global agent
-        if agent is None:
-            print("Initializing agent...")
-            agent_path = "agent_bank/populations/single_agent/01fd7d2a-0357-4c1b-9f3e-8eade2d537ae"
+        print("Initializing agent...")
+        agent_path = f"agent_bank/populations/single_agent/{agent_id}"
             
-            if not os.path.exists(agent_path):
-                return jsonify({"error": f"Agent directory not found at {agent_path}"}), 404
+        if not os.path.exists(agent_path):
+            return jsonify({"error": f"Agent directory not found at {agent_path}"}), 404
                 
-            try:
-                agent = GenerativeAgent(agent_path)
-                print("Agent initialized successfully")
-            except Exception as init_error:
-                return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
-
-        message = request.json.get('message')
-        if not message:
-            return jsonify({"error": "No message provided"}), 400
+        try:
+            agent = GenerativeAgent(agent_path)
+            print("Agent initialized successfully")
+        except Exception as init_error:
+            return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
 
         try:
             dialogue = [["User", message]]
