@@ -95,16 +95,27 @@ def add_memory():
         memory = data.get('memory')
         time_step = data.get('time_step', 1)
         
+        # Check in both directories
         agent_path = f"agent_bank/populations/single_agent/{agent_id}"
         if not os.path.exists(agent_path):
-            return jsonify({"error": "Agent not found"}), 404
+            agent_path = f"agent_bank/populations/gss_agents/{agent_id}"
+            if not os.path.exists(agent_path):
+                return jsonify({"error": "Agent not found"}), 404
             
-        agent = GenerativeAgent(agent_path)
-        agent.remember(memory, time_step=time_step)
-        agent.save(agent_path)
+        # Create memory_stream directory if it doesn't exist
+        os.makedirs(os.path.join(agent_path, "memory_stream"), exist_ok=True)
         
-        return jsonify({"success": True}), 200
+        try:
+            agent = GenerativeAgent(agent_path)
+            agent.remember(memory, time_step=time_step)
+            agent.save(agent_path)
+            return jsonify({"success": True}), 200
+        except Exception as agent_error:
+            print(f"Agent memory error: {str(agent_error)}")
+            return jsonify({"error": f"Failed to add memory: {str(agent_error)}"}), 500
+            
     except Exception as e:
+        print(f"Memory addition error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/reflect', methods=['POST'])
