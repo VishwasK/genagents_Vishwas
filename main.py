@@ -36,15 +36,11 @@ def chat():
 
         try:
             dialogue = [["User", message]]
-            response = agent.utterance(dialogue)
+            response = agent.utterance(dialogue, "")  # Add empty context
             
             if not isinstance(response, str):
-                return jsonify({"error": "Invalid response format from agent"}), 500
-            
-            # Remove any memory content that might be included in response
-            response = response.split("\n")[-1].strip()
-            if not response:
-                return jsonify({"error": "Empty response from agent"}), 500
+                response = "I apologize, but I'm having trouble processing that request."
+                return jsonify({"response": response}), 500
                 
             return jsonify({"response": response})
             
