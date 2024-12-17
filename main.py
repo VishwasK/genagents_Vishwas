@@ -144,8 +144,11 @@ def reflect():
             
             # Generate reflection with proper error handling
             try:
-                agent.reflect(anchor=anchor, time_step=time_step)
-                # Get the most recent reflection from memory stream
+                # Add reflection count parameter
+                reflection_count = 1  # Generate one reflection at a time
+                agent.memory_stream.reflect(anchor=anchor, reflection_count=reflection_count, time_step=time_step)
+                
+                # Get the most recent reflection
                 reflections = [node for node in agent.memory_stream.seq_nodes if node.node_type == "reflection"]
                 reflection_text = reflections[-1].content if reflections else "No reflection generated"
                 agent.save(agent_path)
