@@ -16,32 +16,47 @@ def chat():
         global agent
         if agent is None:
             print("Initializing agent...")
-            # Using the example agent provided in the repository
             agent_path = "agent_bank/populations/single_agent/01fd7d2a-0357-4c1b-9f3e-8eade2d537ae"
             
             if not os.path.exists(agent_path):
-                return jsonify({"error": "Agent directory not found"}), 404
+                return jsonify({"error": f"Agent directory not found at {agent_path}"}), 404
                 
             if not os.path.exists(f"{agent_path}/scratch.json"):
-                return jsonify({"error": "Agent data not found"}), 404
+                return jsonify({"error": f"Agent data (scratch.json) not found in {agent_path}"}), 404
                 
-            agent = GenerativeAgent(agent_path)
-            print("Agent initialized successfully")
+            try:
+                agent = GenerativeAgent(agent_path)
+                print("Agent initialized successfully")
+            except Exception as init_error:
+                return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
 
         message = request.json.get('message')
         if not message:
             return jsonify({"error": "No message provided"}), 400
 
-        # Simple dialogue format as per documentation
-        dialogue = [["User", message]]
-        response = agent.utterance(dialogue)
-        print(f"Received response: {response}")
-
-        return jsonify({"response": response})
+        try:
+            dialogue = [["User", message]]
+            response = agent.utterance(dialogue)
+            print(f"Raw response from agent: {response}")
+            
+            if response is None:
+                return jsonify({"error": "Agent returned None response"}), 500
+                
+            return jsonify({
+                "response": response,
+                "raw_response": str(response),
+                "type": str(type(response))
+            })
+            
+        except Exception as dialogue_error:
+            return jsonify({"error": f"Failed to process dialogue: {str(dialogue_error)}"}), 500
         
     except Exception as e:
         print(f"Error in chat endpoint: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "error": str(e),
+            "trace": traceback.format_exc()
+        }), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)

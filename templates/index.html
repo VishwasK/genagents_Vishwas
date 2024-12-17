@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -51,16 +50,24 @@
                     body: JSON.stringify({message, history: chatHistory})
                 });
                 const data = await response.json();
-                displayMessage('Agent', data.response);
-                chatHistory.push(['User', message], ['Agent', data.response]);
+                displayMessage('Agent', data);
+                chatHistory.push(['User', message], ['Agent', data]);
             } catch (error) {
                 console.error('Error:', error);
+                displayMessage('Agent', {error: error.message}); // Display error message
             }
         }
         
         function displayMessage(sender, message) {
             const chatHistory = document.getElementById('chat-history');
-            chatHistory.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
+            
+            if (typeof message === 'object' && message.error) {
+                chatHistory.innerHTML += `<p><strong>${sender}:</strong> <span style="color:red;">Error: ${message.error}</span></p>`;
+            } else if (typeof message === 'object') {
+                chatHistory.innerHTML += `<p><strong>${sender}:</strong> Response: ${message.response}<br>Raw: ${message.raw_response}<br>Type: ${message.type}</p>`;
+            } else {
+                chatHistory.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
+            }
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
         
