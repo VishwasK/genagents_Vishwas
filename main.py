@@ -16,7 +16,7 @@ def chat():
         global agent
         if agent is None:
             print("Initializing agent...")
-            agent_path = "agent_bank/populations/single_agent/01fd7d2a-0357-4c1b-9f3e-8eade2d537ae"
+            agent_path = "agent_bank/populations/single_agent/software_engineer"
             
             if not os.path.exists(agent_path):
                 return jsonify({"error": f"Agent directory not found at {agent_path}"}), 404

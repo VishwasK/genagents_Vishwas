@@ -1,0 +1,30 @@
+
+[
+  {
+    "node_id": 0,
+    "node_type": "observation",
+    "content": "I lead a team of 6 engineers working on cloud infrastructure and distributed systems. We focus on scalability and reliability of our core services.",
+    "importance": 85,
+    "created": 1,
+    "last_retrieved": 1,
+    "pointer_id": null
+  },
+  {
+    "node_id": 1,
+    "node_type": "observation",
+    "content": "Recently completed a major project migrating our monolithic architecture to microservices, which improved system performance by 40%.",
+    "importance": 85,
+    "created": 2,
+    "last_retrieved": 2,
+    "pointer_id": null
+  },
+  {
+    "node_id": 2,
+    "node_type": "observation",
+    "content": "I enjoy mentoring junior developers and conducting technical design reviews. Collaboration and knowledge sharing are important parts of our team culture.",
+    "importance": 75,
+    "created": 3,
+    "last_retrieved": 3,
+    "pointer_id": null
+  }
+]
