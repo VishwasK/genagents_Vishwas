@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, jsonify
 import uuid
 from genagents.genagents import GenerativeAgent
+from genagents.modules.memory_stream import MemoryStream
 import os, json
 import traceback
 
