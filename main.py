@@ -115,15 +115,26 @@ def reflect():
         anchor = data.get('anchor')
         time_step = data.get('time_step', 1)
         
+        # Check in both directories
         agent_path = f"agent_bank/populations/single_agent/{agent_id}"
         if not os.path.exists(agent_path):
-            return jsonify({"error": "Agent not found"}), 404
-            
-        agent = GenerativeAgent(agent_path)
-        reflection = agent.reflect(anchor=anchor, time_step=time_step)
+            agent_path = f"agent_bank/populations/gss_agents/{agent_id}"
+            if not os.path.exists(agent_path):
+                return jsonify({"error": "Agent not found"}), 404
+
+        # Create required directories
+        os.makedirs(os.path.join(agent_path, "memory_stream"), exist_ok=True)
         
-        return jsonify({"reflection": reflection}), 200
+        # Initialize agent
+        try:
+            agent = GenerativeAgent(agent_path)
+            reflection = agent.reflect(anchor=anchor, time_step=time_step)
+            return jsonify({"reflection": reflection}), 200
+        except Exception as init_error:
+            return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
+            
     except Exception as e:
+        print(f"Reflection error: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/chat', methods=['POST'])
