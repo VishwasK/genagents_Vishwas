@@ -55,10 +55,86 @@
             border-radius: 4px;
             display: none;
         }
+        .management-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
     <div id="chat-container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('chat')">Chat</div>
+            <div class="tab" onclick="switchTab('create')">Create Agent</div>
+            <div class="tab" onclick="switchTab('manage')">Manage Agent</div>
+        </div>
+        
+        <div id="create-section" class="management-section" style="display: none;">
+            <h3>Create New Agent</h3>
+            <div class="form-group">
+                <label>First Name:</label>
+                <input type="text" id="create-firstname">
+            </div>
+            <div class="form-group">
+                <label>Last Name:</label>
+                <input type="text" id="create-lastname">
+            </div>
+            <div class="form-group">
+                <label>Age:</label>
+                <input type="number" id="create-age">
+            </div>
+            <div class="form-group">
+                <label>Occupation:</label>
+                <input type="text" id="create-occupation">
+            </div>
+            <button onclick="createAgent()">Create Agent</button>
+        </div>
+        
+        <div id="manage-section" class="management-section" style="display: none;">
+            <h3>Manage Agent</h3>
+            <div class="form-group">
+                <label>Add Memory:</label>
+                <textarea id="memory-text" rows="3"></textarea>
+                <label>Time Step:</label>
+                <input type="number" id="memory-timestep" value="1">
+                <button onclick="addMemory()">Add Memory</button>
+            </div>
+            <div class="form-group">
+                <label>Reflection Anchor:</label>
+                <input type="text" id="reflection-anchor">
+                <label>Time Step:</label>
+                <input type="number" id="reflection-timestep" value="1">
+                <button onclick="reflect()">Generate Reflection</button>
+            </div>
+            <div id="reflection-result"></div>
+        </div>
         <div id="agent-selector-container">
             <div class="search-fields">
                 <input type="text" id="agent-search" placeholder="Search by name...">
@@ -219,6 +295,114 @@
                 sendMessage();
             }
         });
+    async function createAgent() {
+            const agentInfo = {
+                first_name: document.getElementById('create-firstname').value,
+                last_name: document.getElementById('create-lastname').value,
+                age: parseInt(document.getElementById('create-age').value),
+                occupation: document.getElementById('create-occupation').value
+            };
+            
+            try {
+                const response = await fetch('/create-agent', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({agent_info: agentInfo})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Agent created successfully! ID: ' + data.agent_id);
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create agent');
+            }
+        }
+        
+        async function addMemory() {
+            if (!currentAgent) {
+                alert('Please select an agent first');
+                return;
+            }
+            
+            const memory = document.getElementById('memory-text').value;
+            const timeStep = parseInt(document.getElementById('memory-timestep').value);
+            
+            try {
+                const response = await fetch('/add-memory', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        agent_id: currentAgent,
+                        memory: memory,
+                        time_step: timeStep
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Memory added successfully!');
+                    document.getElementById('memory-text').value = '';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add memory');
+            }
+        }
+        
+        async function reflect() {
+            if (!currentAgent) {
+                alert('Please select an agent first');
+                return;
+            }
+            
+            const anchor = document.getElementById('reflection-anchor').value;
+            const timeStep = parseInt(document.getElementById('reflection-timestep').value);
+            
+            try {
+                const response = await fetch('/reflect', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        agent_id: currentAgent,
+                        anchor: anchor,
+                        time_step: timeStep
+                    })
+                });
+                const data = await response.json();
+                document.getElementById('reflection-result').innerHTML = `
+                    <p><strong>Reflection:</strong> ${data.reflection}</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate reflection');
+            }
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Hide all sections
+            document.getElementById('agent-selector-container').style.display = 'none';
+            document.getElementById('chat-history').style.display = 'none';
+            document.getElementById('message-input').style.display = 'none';
+            document.getElementById('send-button').style.display = 'none';
+            document.getElementById('create-section').style.display = 'none';
+            document.getElementById('manage-section').style.display = 'none';
+            
+            // Show selected section
+            if (tab === 'chat') {
+                document.getElementById('agent-selector-container').style.display = 'block';
+                document.getElementById('chat-history').style.display = 'block';
+                document.getElementById('message-input').style.display = 'inline-block';
+                document.getElementById('send-button').style.display = 'inline-block';
+            } else if (tab === 'create') {
+                document.getElementById('create-section').style.display = 'block';
+            } else if (tab === 'manage') {
+                document.getElementById('manage-section').style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>

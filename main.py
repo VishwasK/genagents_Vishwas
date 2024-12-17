@@ -67,6 +67,64 @@ def search_agents():
     
     return jsonify(results)
 
+@app.route('/create-agent', methods=['POST'])
+def create_agent():
+    try:
+        data = request.get_json()
+        agent_info = data.get('agent_info', {})
+        
+        agent_id = str(uuid.uuid4())
+        agent_path = f"agent_bank/populations/single_agent/{agent_id}"
+        os.makedirs(os.path.join(agent_path, "memory_stream"), exist_ok=True)
+        
+        # Create new agent
+        agent = GenerativeAgent(agent_path)
+        agent.update_scratch(agent_info)
+        agent.save(agent_path)
+        
+        return jsonify({"success": True, "agent_id": agent_id}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/add-memory', methods=['POST'])
+def add_memory():
+    try:
+        data = request.get_json()
+        agent_id = data.get('agent_id')
+        memory = data.get('memory')
+        time_step = data.get('time_step', 1)
+        
+        agent_path = f"agent_bank/populations/single_agent/{agent_id}"
+        if not os.path.exists(agent_path):
+            return jsonify({"error": "Agent not found"}), 404
+            
+        agent = GenerativeAgent(agent_path)
+        agent.remember(memory, time_step=time_step)
+        agent.save(agent_path)
+        
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/reflect', methods=['POST'])
+def reflect():
+    try:
+        data = request.get_json()
+        agent_id = data.get('agent_id')
+        anchor = data.get('anchor')
+        time_step = data.get('time_step', 1)
+        
+        agent_path = f"agent_bank/populations/single_agent/{agent_id}"
+        if not os.path.exists(agent_path):
+            return jsonify({"error": "Agent not found"}), 404
+            
+        agent = GenerativeAgent(agent_path)
+        reflection = agent.reflect(anchor=anchor, time_step=time_step)
+        
+        return jsonify({"reflection": reflection}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
