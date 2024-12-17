@@ -52,14 +52,18 @@ def generate_prompt(prompt_input: Union[str, List[str]],
 
 def gpt_request(prompt: str, 
                 model: str = "gpt-4o", 
-                max_tokens: int = 1500) -> str:
+                max_tokens: int = 1000) -> str:
   """Make a request to OpenAI's GPT model."""
+  # Limit prompt to ~1000 tokens by truncating if needed
+  prompt = prompt[:4000]  # Rough approximation of 1000 tokens
+
   if model == "o1-preview": 
     try:
       client = openai.OpenAI(api_key=OPENAI_API_KEY)
       response = client.chat.completions.create(
         model=model,
-        messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1000
       )
       return response.choices[0].message.content
     except Exception as e:
@@ -68,9 +72,9 @@ def gpt_request(prompt: str,
   try:
     client = openai.OpenAI(api_key=OPENAI_API_KEY)
     response = client.chat.completions.create(
-      model=model,
+      model=model, 
       messages=[{"role": "user", "content": prompt}],
-      max_tokens=max_tokens,
+      max_tokens=1000,
       temperature=0.7
     )
     return response.choices[0].message.content
