@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GenAgents Chat</title>
+    <style>
+        #chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        #chat-history {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+        #message-input {
+            width: 80%;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-history"></div>
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    
+    <script>
+        let chatHistory = [];
+        
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value;
+            if (!message) return;
+            
+            displayMessage('User', message);
+            input.value = '';
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message, history: chatHistory})
+                });
+                const data = await response.json();
+                displayMessage('Agent', data.response);
+                chatHistory.push(['User', message], ['Agent', data.response]);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        function displayMessage(sender, message) {
+            const chatHistory = document.getElementById('chat-history');
+            chatHistory.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        
+        document.getElementById('message-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
