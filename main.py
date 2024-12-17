@@ -75,17 +75,21 @@ def chat():
         agent_id = data.get('agent_id', '01fd7d2a-0357-4c1b-9f3e-8eade2d537ae')
         
         global agent
-        print("Initializing agent...")
+        
+        # Check in both directories
         agent_path = f"agent_bank/populations/single_agent/{agent_id}"
-            
         if not os.path.exists(agent_path):
-            return jsonify({"error": f"Agent directory not found at {agent_path}"}), 404
-                
-        try:
-            agent = GenerativeAgent(agent_path)
-            print("Agent initialized successfully")
-        except Exception as init_error:
-            return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
+            agent_path = f"agent_bank/populations/gss_agents/{agent_id}"
+            if not os.path.exists(agent_path):
+                return jsonify({"error": f"Agent directory not found"}), 404
+
+        if agent is None or getattr(agent, 'id', None) != agent_id:
+            print("Initializing agent...")
+            try:
+                agent = GenerativeAgent(agent_path)
+                print("Agent initialized successfully")
+            except Exception as init_error:
+                return jsonify({"error": f"Failed to initialize agent: {str(init_error)}"}), 500
 
         try:
             dialogue = [["User", message]]
