@@ -1,0 +1,34 @@
+[
+  {
+    "node_id": 0,
+    "node_type": "observation",
+    "content": "Is from wealthy family. Family owned multiple properties in India",
+    "importance": 75,
+    "created": 1,
+    "last_retrieved": 1,
+    "pointer_id": null
+  },
+  {
+    "node_id": 1,
+    "node_type": "reflection",
+    "content": "Growing up in a wealthy family, I was surrounded by a sense of privilege that set the tone for my childhood. With multiple properties in India, my early years were filled with the comfort and security that wealth can provide. However, I often wonder how this environment shaped my understanding of relationships and the world around me. While I had access to opportunities that many could only dream of, I sometimes felt isolated from the realities faced by others. My childhood was a blend of luxury and introspection, and I find myself reflecting on how these experiences influenced my values and aspirations.",
+    "importance": 75,
+    "created": 1,
+    "last_retrieved": 1,
+    "pointer_id": [
+      0
+    ]
+  },
+  {
+    "node_id": 2,
+    "node_type": "reflection",
+    "content": "Growing up in a wealthy family provided me with numerous opportunities and resources that shaped my perspective on career choices. I often grapple with the privilege I had, which allowed me to explore various paths without the same pressures that many face. However, this privilege also made me acutely aware of the disparities in the world, pushing me to consider how I can leverage my advantages to make a meaningful impact. I aspire to build a career that not only fulfills my ambitions but also contributes positively to society, bridging the gap between my fortunate upbringing and the realities that others endure.",
+    "importance": 85,
+    "created": 1,
+    "last_retrieved": 1,
+    "pointer_id": [
+      1,
+      0
+    ]
+  }
+]
