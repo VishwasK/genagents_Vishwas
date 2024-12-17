@@ -32,10 +32,17 @@
         #agent-selector-container {
             margin-bottom: 20px;
         }
-        #agent-search {
+        .search-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .search-fields input,
+        .search-fields select,
+        .search-fields button {
             width: 100%;
             padding: 8px;
-            margin-bottom: 10px;
         }
         #agent-selector {
             width: 100%;
@@ -53,7 +60,23 @@
 <body>
     <div id="chat-container">
         <div id="agent-selector-container">
-            <input type="text" id="agent-search" placeholder="Search agents...">
+            <div class="search-fields">
+                <input type="text" id="agent-search" placeholder="Search by name...">
+                <input type="number" id="age-search" placeholder="Age">
+                <select id="sex-search">
+                    <option value="">Select Sex</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <select id="race-search">
+                    <option value="">Select Race</option>
+                    <option value="White">White</option>
+                    <option value="Black">Black</option>
+                    <option value="Asian">Asian</option>
+                    <option value="Hispanic">Hispanic</option>
+                </select>
+                <button onclick="searchAgents()">Search</button>
+            </div>
             <select id="agent-selector" onchange="changeAgent()">
                 <option value="">Select an agent...</option>
                 <option value="01fd7d2a-0357-4c1b-9f3e-8eade2d537ae">Joon - PhD Student at Stanford</option>
@@ -84,12 +107,33 @@
             }
         };
         
-        function filterAgents() {
-            const searchText = document.getElementById('agent-search').value.toLowerCase();
+        async function searchAgents() {
+            const name = document.getElementById('agent-search').value;
+            const age = document.getElementById('age-search').value;
+            const sex = document.getElementById('sex-search').value;
+            const race = document.getElementById('race-search').value;
+            
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name, age, sex, race })
+                });
+                const agents = await response.json();
+                updateAgentSelector(agents);
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+
+        function updateAgentSelector(agents) {
             const selector = document.getElementById('agent-selector');
-            Array.from(selector.options).forEach(option => {
-                const text = option.text.toLowerCase();
-                option.style.display = text.includes(searchText) ? '' : 'none';
+            selector.innerHTML = '<option value="">Select an agent...</option>';
+            agents.forEach(agent => {
+                const option = document.createElement('option');
+                option.value = agent.id;
+                option.text = `${agent.first_name} ${agent.last_name} (${agent.age}, ${agent.sex})`;
+                selector.appendChild(option);
             });
         }
         
