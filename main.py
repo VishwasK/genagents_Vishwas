@@ -66,12 +66,12 @@ def chat():
 
         try:
             dialogue = [["User", message]]
-            response = agent.utterance(dialogue)
+            response = agent.utterance(dialogue, {})  # Add empty context dict
             
-            if not response:
+            if isinstance(response, str):
+                return jsonify({"response": response}), 200
+            else:
                 return jsonify({"response": "I apologize, but I'm having trouble understanding. Could you please rephrase?"}), 200
-                
-            return jsonify({"response": response})
             
         except Exception as dialogue_error:
             print(f"Dialogue error: {str(dialogue_error)}")
