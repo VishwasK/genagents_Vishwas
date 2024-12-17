@@ -161,7 +161,9 @@ def run_gpt_generate_utterance(
             return gpt_response.strip()
         response_dict = extract_first_json_dict(gpt_response)
         if response_dict and "utterance" in response_dict:
-            return response_dict["utterance"]
+            return response_dict["utterance"].strip()
+        elif response_dict:
+            return str(response_dict).strip()
         return "Hello! How can I assist you today?"
     except Exception as e:
         print(f"Error cleaning up response: {str(e)}")
