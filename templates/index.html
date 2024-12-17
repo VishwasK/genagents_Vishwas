@@ -247,7 +247,11 @@
             });
         }
         
-        document.getElementById('agent-search').addEventListener('input', filterAgents);
+        function filterAgents() {
+    searchAgents();  // This calls the existing search endpoint
+}
+
+document.getElementById('agent-search').addEventListener('input', filterAgents);
         
         function changeAgent() {
             currentAgent = document.getElementById('agent-selector').value;
