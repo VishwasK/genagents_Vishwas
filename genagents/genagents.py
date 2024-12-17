@@ -115,10 +115,13 @@ class GenerativeAgent:
 
     Parameters:
       anchor: str reflection anchor
+      time_step: int time step for the reflection
     Returns: 
       None
     """
-    self.memory_stream.reflect(anchor, time_step)
+    if not hasattr(self, 'memory_stream'):
+        self.memory_stream = MemoryStream([], {})
+    self.memory_stream.reflect(anchor=anchor, reflection_count=1, time_step=time_step)
 
 
   def categorical_resp(self, questions): 

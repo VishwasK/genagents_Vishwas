@@ -144,9 +144,7 @@ def reflect():
             
             # Generate reflection with proper error handling
             try:
-                # Add reflection count parameter
-                reflection_count = 1  # Generate one reflection at a time
-                agent.memory_stream.reflect(anchor=anchor, reflection_count=reflection_count, time_step=time_step)
+                agent.reflect(anchor=anchor, time_step=time_step)
                 
                 # Get the most recent reflection
                 reflections = [node for node in agent.memory_stream.seq_nodes if node.node_type == "reflection"]
