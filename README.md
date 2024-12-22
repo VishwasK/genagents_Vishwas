@@ -219,6 +219,10 @@ print(response["responses"])
 
 Due to participant privacy concerns, the full agent bank containing over 1,000 generative agents based on real interviews is not publicly available at the moment. However, we plan to make aggregated responses on fixed tasks accessible for general research use in the coming months. Researchers interested in accessing individual responses on open tasks can request restricted access by contacting the authors and following a review process that ensures ethical considerations are met.
 
+## Using Web UI
+
+If you prefer to use web UI please take a look at latest changes which were made using Replit. You should be able to import the GIT repository in replit and deploy to see web UI.
+
 ## Contributing
 
 We welcome contributions to enhance the functionality and usability of this project. If you are interested in contributing, please follow these steps:
